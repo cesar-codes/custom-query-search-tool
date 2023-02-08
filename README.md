@@ -2,4 +2,7 @@
 
 This is an OpenAvenues project
 
-## More details coming soon
+## Technologies used
+NodeJS
+ReactJS
+Semantic UI React
