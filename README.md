@@ -5,4 +5,4 @@ This is an OpenAvenues project
 ## Technologies used
 NodeJS
 ReactJS
-Semantic UI React
+Semantic UI 
