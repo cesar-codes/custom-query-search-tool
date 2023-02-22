@@ -3,6 +3,6 @@
 This is an OpenAvenues project
 
 ## Technologies used
-NodeJS
-ReactJS
-Semantic UI React
+NodeJS\
+ReactJS\
+Semantic UI
