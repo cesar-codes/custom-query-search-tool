@@ -25,7 +25,7 @@ function InputParameters() {
     
     const [restaurantIds, setRestaurantIds] = useState([]);
     const [startDate, setStartDate] = useState(moment("3-1-2023"));
-    const [endDate, setEndDate] = useState(moment("3-21-20203"));
+    const [endDate, setEndDate] = useState(moment("3-21-2023"));
     const [focusedInput, setFocusedInput] = useState(null);
     const [metricDefinitions, setMetricDefinitions] = useState([]);
 
@@ -50,9 +50,6 @@ function InputParameters() {
     });
 
 
-
-    //const [restaurantIds, setRestaurantIds] = useState([]);
-    //console.log(data)
     return (
         <Grid>
             <Grid.Row columns={1}>
@@ -74,7 +71,7 @@ function InputParameters() {
                                         fluid
                                         multiple
                                         selection
-                                        options={options}
+                                        options={metricOptions}
                                         value={restaurantIds}
                                         onChange={(e, data) => setRestaurantIds(data.value)}
                                     />
@@ -82,16 +79,35 @@ function InputParameters() {
 
                                 <Grid.Row>
                                     <Grid.Column textAlign="center">
-                                        <h3>Dates</h3>
+                                        {/* <h3>Dates></h3> */}
+                                    </Grid.Column>
+                                    <DateRangePicker
+                                        startDate={startDate}
+                                        startDateId="your_unique_start_date_id"
+                                        endDate={endDate}
+                                        endDateId="your_unique_end_date_id"
+                                        onDatesChange={({ startDate, endDate }) => {
+                                            setStartDate(startDate);
+                                            setEndDate(endDate)
+                                        }
+                                        }
+                                        focusedInput={focusedInput}
+                                        onFocusChange={ focusedInput => setFocusedInput(focusedInput)}
+
+                                    />
+                                </Grid.Row>
+
+                                <Grid.Row>
+                                    <Grid.Column textAlign="center">
+                                        <h3>Metrics</h3>
                                     </Grid.Column>
                                     <Dropdown
-                                        placeholder='Select date range...'
+                                        placeholder='Select metric...'
                                         fluid
-                                        multiple
                                         selection
-                                        options={options}
-                                        value={restaurantIds}
-                                        onChange={(e, data) => setRestaurantIds(data.value)}
+                                        options={metricOptions}
+                                        // value={restaurantIds}
+                                        // onChange={(e, data) => setRestaurantIds(data.value)}
                                     />
                                 </Grid.Row>
 
