@@ -1,7 +1,9 @@
-import React from "react";
-import { useState, useEffect } from "react";
+import React, { useEffect } from "react";
+import { useState } from "react";
+import { DateRangePicker } from "react-dates";
 import { Container, Dropdown, Grid, Segment } from "semantic-ui-react";
-import data from './RestaurantData.json'
+import moment from "moment";
+import data from './RestaurantData.json';
 
 function InputParameters() {
     const resaurantData = data.map( (data) =>{
