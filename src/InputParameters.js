@@ -2,30 +2,6 @@ import React from "react";
 import { useState, useEffect } from "react";
 import { Container, Dropdown, Grid, Segment } from "semantic-ui-react";
 import data from './RestaurantData.json'
-// const getData = () => {
-//     fetch('RestaurantData.json'
-//     ,{
-//         headers : { 
-//         'Content-Type': 'application/json',
-//         'Accept': 'application/json'
-//        }
-//     }
-//     )
-//     .then(function(response){
-//         console.log(response)
-//         return response.json();
-//       })
-//       .then(function(myJson) {
-//         console.log(myJson);
-//       });
-//   }
-//   useEffect(()=>{
-//     getData()
-//   },[])
-
-
-
-
 
 function InputParameters() {
     const resaurantData = data.map( (data) =>{
@@ -57,36 +33,6 @@ function InputParameters() {
                                     </Grid.Column>
                                     <Dropdown
                                         placeholder='Select restaurant...'
-                                        fluid
-                                        multiple
-                                        selection
-                                        options={options}
-                                        value={restaurantIds}
-                                        onChange={(e, data) => setRestaurantIds(data.value)}
-                                    />
-                                </Grid.Row>
-
-                                <Grid.Row>
-                                    <Grid.Column textAlign="center">
-                                        <h3>Time</h3>
-                                    </Grid.Column>
-                                    <Dropdown
-                                        placeholder='Select time range...'
-                                        fluid
-                                        multiple
-                                        selection
-                                        options={options}
-                                        value={restaurantIds}
-                                        onChange={(e, data) => setRestaurantIds(data.value)}
-                                    />
-                                </Grid.Row>
-
-                                <Grid.Row>
-                                    <Grid.Column textAlign="center">
-                                        <h3>Metrics</h3>
-                                    </Grid.Column>
-                                    <Dropdown
-                                        placeholder='Select metrics...'
                                         fluid
                                         multiple
                                         selection
