@@ -14,11 +14,11 @@ async function getData(url = "") {
 }
 
 function InputParameters() {
-    const resaurantData = data.map( (data) =>{
+    const restaurantData = data.map( (data) =>{
     //console.log(data)
 }
 )
-    const options = [resaurantData
+    const options = [restaurantData
         //   { key: 1, text: 'Restaurant 1', value: 1 },
         //   { key: 2, text: 'Restaurant 2', value: 2 }
     ];
@@ -62,6 +62,7 @@ function InputParameters() {
                                         <h2>Custom Search Query Tool</h2>
                                     </Grid.Column>
                                 </Grid.Row>
+                                {/* Restaurant picker */}
                                 <Grid.Row>
                                     <Grid.Column textAlign="center">
                                         <h3>Restaurant</h3>
@@ -72,15 +73,17 @@ function InputParameters() {
                                         multiple
                                         selection
                                         options={metricOptions}
+                                        //options={restaurantData}
                                         value={restaurantIds}
                                         onChange={(e, data) => setRestaurantIds(data.value)}
                                     />
                                 </Grid.Row>
-
+                               
+                                {/* Time Range picker */}
                                 <Grid.Row>
-                                    <Grid.Column textAlign="center">
-                                        {/* <h3>Dates></h3> */}
-                                    </Grid.Column>
+                                    {/* <Grid.Column textAlign="center">
+                                        <h3>Dates></h3>
+                                    </Grid.Column> */}
                                     <DateRangePicker
                                         startDate={startDate}
                                         startDateId="your_unique_start_date_id"
@@ -93,10 +96,10 @@ function InputParameters() {
                                         }
                                         focusedInput={focusedInput}
                                         onFocusChange={ focusedInput => setFocusedInput(focusedInput)}
-
                                     />
                                 </Grid.Row>
 
+                                {/* Metrics */}
                                 <Grid.Row>
                                     <Grid.Column textAlign="center">
                                         <h3>Metrics</h3>
@@ -110,6 +113,27 @@ function InputParameters() {
                                         // onChange={(e, data) => setRestaurantIds(data.value)}
                                     />
                                 </Grid.Row>
+
+                                {/* Date picker */}
+                                <Grid.Row>
+                                    <h3>Date range</h3>
+                                    <Grid.Column textAlign="center">
+                                    </Grid.Column>
+                                    <DateRangePicker
+                                        startDate={startDate}
+                                        startDateId="your_unique_start_date_id"
+                                        endDate={endDate}
+                                        endDateId="your_unique_end_date_id"
+                                        onDatesChange={({ startDate, endDate }) => {
+                                            setStartDate(startDate);
+                                            setEndDate(endDate)
+                                        }
+                                        }
+                                        focusedInput={focusedInput}
+                                        onFocusChange={ focusedInput => setFocusedInput(focusedInput)}
+                                    />
+                                </Grid.Row>
+
 
                             </Grid>
                         </Segment>
