@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import { useState } from "react";
 import { DateRangePicker } from "react-dates";
-import { Container, Dropdown, Grid, Segment, Input } from "semantic-ui-react";
+import { Container, Dropdown, Grid, Segment, Input, Form } from "semantic-ui-react";
 import moment from "moment";
 import RestaurantData from './RestaurantData.json';
 
@@ -13,7 +13,22 @@ async function getData(url = "") {
     return response.json();
 }
 
+async function postData(url="", data = {}) {
+    const response = await fetch(url, {
+        method: 'POST',
+        cache: 'no-cache',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+    });
 
+    if (response.ok) {
+        return response.json();
+    } else {
+        throw response.json();
+    }
+}
 
 function InputParameters() {
     const restaurantData = RestaurantData.map( d =>{
@@ -24,12 +39,7 @@ function InputParameters() {
     })
 }
 )
-console.log('data', RestaurantData)
-
-    // const options = [restaurantData
-    //     //   { key: 1, text: 'Restaurant 1', value: 1 },
-    //     //   { key: 2, text: 'Restaurant 2', value: 2 }
-    // ];
+//console.log('data', RestaurantData)
     const timeOptions = [
         {key: 1, text: '5 a.m.', value: 5},
         {key: 2, text: '6 a.m.', value: 6},
@@ -54,16 +64,45 @@ console.log('data', RestaurantData)
         {key: 21, text: '1 a.m.', value: 25},
         {key: 22, text: '2 a.m.', value: 26},
         {key: 23, text: '3 a.m.', value: 27},
-        {key: 23, text: '4 a.m.', value: 28},
-        {key: 24, text: '5 a.m. next day', value: 29},
-        {key: 25, text: '6 a.m. next day', value: 30},
-        {key: 26, text: '7 a.m. next day', value: 31},
+        {key: 24, text: '4 a.m.', value: 28},
+        {key: 25, text: '5 a.m. next day', value: 29},
+        {key: 26, text: '6 a.m. next day', value: 30},
+        {key: 27, text: '7 a.m. next day', value: 31},
+    ]
+
+    const compareOptions = [
+    { 
+    key: 1,
+    text: '=',
+    value: 'Equal' 
+    },
+    { 
+    key: 2,
+    text: '<=',
+    value: 'LessThanOrEqual' 
+    },
+    { 
+    key: 3,
+    text: '<',
+    value: 'LessThan' 
+    },
+    { 
+    key: 4,
+    text: '>',
+    value: 'GreaterThan' 
+    },
+    { 
+    key: 5,
+    text: '>=',
+    value: 'GreaterThanOrEqual' 
+    },
     ]
 
     const [fromTime, setFromTime] = useState(5);
     const [toTime, setToTime] = useState(29)
 
     const [metric, setMetric] = useState(null)
+    const [compare, setCompare] = useState(null)
 
     const [restaurantIds, setRestaurantIds] = useState([]);
     const [startDate, setStartDate] = useState(moment("3-1-2023"));
@@ -71,8 +110,6 @@ console.log('data', RestaurantData)
     const [focusedInput, setFocusedInput] = useState(null);
     const [metricDefinitions, setMetricDefinitions] = useState([]);
 
-    // console.log("Start Date", startDate)
-    // console.log("End Date", endDate)
 
     useEffect(() => {
         getData("https://customsearchquerytoolapi.azurewebsites.net/Search/MetricDefinitions")
@@ -81,14 +118,6 @@ console.log('data', RestaurantData)
         })
     }, []);
 
-    //console.log("metricDefinitions:", metricDefinitions)
-   // console.log('restaurantData', restaurantData)
-
-    // const restaurantOptions = restaurantIds.map( m => {
-    //     return ({
-    //         key: 
-    //     })
-    // })
 
     const metricOptions = metricDefinitions.map( m => {
         return ({
@@ -110,88 +139,95 @@ console.log('data', RestaurantData)
                                         <h2>Custom Search Query Tool</h2>
                                     </Grid.Column>
                                 </Grid.Row>
-                                {/* Restaurant picker */}
+
                                 <Grid.Row>
-                                    <Grid.Column textAlign="center">
-                                        <h3>Restaurant</h3>
-                                    </Grid.Column>
-                                    <Dropdown
-                                        placeholder='Select restaurant...'
-                                        fluid
-                                        multiple
-                                        selection
-                                        options={restaurantData}
-                                        value={restaurantIds}
-                                        onChange={(e, data) => setRestaurantIds(data.value)}
-                                    />
-                                </Grid.Row>
-                               
-                                {/* Time Range picker */}
-                                <Grid.Row columns={2}>
-                                    <Grid.Column textAlign="center">
+                                    <Form>
+
+                                        <Form.Field>
+                                            <h3>Restaurant</h3>
+                                            <Dropdown
+                                                placeholder='Select restaurant...'
+                                                fluid
+                                                multiple
+                                                selection
+                                                options={restaurantData}
+                                                value={restaurantIds}
+                                                onChange={(e, data) => setRestaurantIds(data.value)}
+                                            />
+                                        </Form.Field>
+
+                                        <Form.Field>
+                                            <h1>Metrics</h1>
+                                            <Dropdown
+                                                placeholder='Select metric...'
+                                                fluid
+                                                selection
+                                                options={metricOptions}
+                                                value={metric}
+                                                onChange={(e, data) => setMetric(data.value)}
+                                            />
+
+                                            <Dropdown
+                                                placeholder='...'
+                                                fluid
+                                                selection
+                                                options={compareOptions}
+                                                value={compare}
+                                                onChange={(e, data) => setCompare(data.value)}
+                                            />
+
+                                            <Input
+                                                placeholder="Quantity"
+                                            />
+
+                                            <Input
+                                                placeholder="Result"
+                                            />
+                                        </Form.Field>
+
+                                        <Form.Field>
                                             <h3>From</h3>
                                             <Dropdown
-                                            placeholder='Start time...'
-                                            fluid
-                                            multiple
-                                            selection
-                                            options={timeOptions}
-                                            //options={restaurantData}
-                                            value={fromTime}
-                                            onChange={(e, data) => setFromTime(data.value)}
-                                        />
-                                    </Grid.Column>
+                                                placeholder='Start time...'
+                                                fluid
+                                                multiple
+                                                selection
+                                                options={timeOptions}
+                                                //options={restaurantData}
+                                                value={fromTime}
+                                                onChange={(e, data) => setFromTime(data.value)}
+                                            />
+                                            <h3>To</h3>
+                                            <Dropdown
+                                                placeholder='End time...'
+                                                fluid
+                                                multiple
+                                                selection
+                                                options={timeOptions}
+                                                //options={restaurantData}
+                                                value={toTime}
+                                                onChange={(e, data) => setToTime(data.value)}
+                                            />
+                                        </Form.Field>
 
-                                    <Grid.Column textAlign="center">
-                                        <h3>To</h3>
-                                        <Dropdown
-                                        placeholder='End time...'
-                                        fluid
-                                        multiple
-                                        selection
-                                        options={RestaurantData}
-                                        //options={restaurantData}
-                                        value={RestaurantData}
-                                        onChange={(e, data) => setRestaurantIds(data.value)}
-                                    />
-                                    </Grid.Column>
-                                </Grid.Row>
+                                        <Form.Field>
+                                            <h3>Date range</h3>
+                                            <DateRangePicker
+                                                startDate={startDate}
+                                                startDateId="your_unique_start_date_id"
+                                                endDate={endDate}
+                                                endDateId="your_unique_end_date_id"
+                                                onDatesChange={({ startDate, endDate }) => {
+                                                    setStartDate(startDate);
+                                                    setEndDate(endDate)
+                                                    }
+                                                }
+                                                focusedInput={focusedInput}
+                                                onFocusChange={ focusedInput => setFocusedInput(focusedInput)}
+                                            />
+                                        </Form.Field>
 
-
-
-                                {/* Metrics */}
-                                <Grid.Row>
-                                    <Grid.Column textAlign="center">
-                                        <h3>Metrics</h3>
-                                    </Grid.Column>
-                                    <Dropdown
-                                        placeholder='Select metric...'
-                                        fluid
-                                        selection
-                                        options={metricOptions}
-                                        value={metric}
-                                        onChange={(e, data) => setMetric(data.value)}
-                                    />
-                                </Grid.Row>
-
-                                {/* Date picker */}
-                                <Grid.Row>
-                                    <h3>Date range</h3>
-                                    <Grid.Column textAlign="center">
-                                    </Grid.Column>
-                                    <DateRangePicker
-                                        startDate={startDate}
-                                        startDateId="your_unique_start_date_id"
-                                        endDate={endDate}
-                                        endDateId="your_unique_end_date_id"
-                                        onDatesChange={({ startDate, endDate }) => {
-                                            setStartDate(startDate);
-                                            setEndDate(endDate)
-                                        }
-                                        }
-                                        focusedInput={focusedInput}
-                                        onFocusChange={ focusedInput => setFocusedInput(focusedInput)}
-                                    />
+                                    </Form>
                                 </Grid.Row>
 
 
