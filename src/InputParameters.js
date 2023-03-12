@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import { useState } from "react";
 import { DateRangePicker } from "react-dates";
-import { Container, Dropdown, Grid, Segment, Input, Form } from "semantic-ui-react";
+import { Container, Dropdown, Grid, Segment, Input, Form, Button, Table, Tab } from "semantic-ui-react";
 import moment from "moment";
 import RestaurantData from './RestaurantData.json';
 
@@ -13,6 +13,8 @@ async function getData(url = "") {
     return response.json();
 }
 
+// API url=("https://customsearchquerytoolapi.azurewebsites.net/Search/Query")
+// Data in API available 10-1-2021 thru 10-26-2021
 async function postData(url="", data = {}) {
     const response = await fetch(url, {
         method: 'POST',
@@ -30,11 +32,42 @@ async function postData(url="", data = {}) {
     }
 }
 
+const results = [
+    {
+    "netAmount": 40.65,
+    "restaurantId": 1,
+    "busDt": "2021-10-01T00:00:00",
+    "orderNumber": 98071,
+    "orderTime": "2021-10-01T19:01:00",
+    "totalAmount": 43.71,
+    "itemSoldQty": 29,
+    "beverageQty": 3,
+    "discountAmount": 0,
+    "discountRatio": 0,
+    "itemDeletedAmount": 0,
+    "refundAmount": 0
+  },
+  {
+    "netAmount": 23.12,
+    "restaurantId": 1,
+    "busDt": "2021-10-01T00:00:00",
+    "orderNumber": 61738,
+    "orderTime": "2021-10-01T15:16:00",
+    "totalAmount": 24.86,
+    "itemSoldQty": 26,
+    "beverageQty": 0,
+    "discountAmount": 0,
+    "discountRatio": 0,
+    "itemDeletedAmount": 0,
+    "refundAmount": 0
+  }
+]
+
 function InputParameters() {
     const restaurantData = RestaurantData.map( d =>{
     return ({
         key: d.Id,
-        value: d.Name,
+        value: d.Id,
         text: d.Name
     })
 }
@@ -70,7 +103,7 @@ function InputParameters() {
         {key: 27, text: '7 a.m. next day', value: 31},
     ]
 
-    const compareOptions = [
+    const compareDefinitions = [
     { 
     key: 1,
     text: '=',
@@ -98,18 +131,23 @@ function InputParameters() {
     },
     ]
 
+
+
     const [fromTime, setFromTime] = useState(5);
     const [toTime, setToTime] = useState(29)
 
     const [metric, setMetric] = useState(null)
     const [compare, setCompare] = useState(null)
 
+    const [transactionData, setTransactionData] = useState([]);
+
     const [restaurantIds, setRestaurantIds] = useState([]);
-    const [startDate, setStartDate] = useState(moment("3-1-2023"));
-    const [endDate, setEndDate] = useState(moment("3-21-2023"));
+    const [startDate, setStartDate] = useState(moment("10-1-2021"));
+    const [endDate, setEndDate] = useState(moment("10-6-2021"));
     const [focusedInput, setFocusedInput] = useState(null);
     const [metricDefinitions, setMetricDefinitions] = useState([]);
-
+    
+    const [inputValue, setInputValue] = useState(null)
 
     useEffect(() => {
         getData("https://customsearchquerytoolapi.azurewebsites.net/Search/MetricDefinitions")
@@ -127,6 +165,68 @@ function InputParameters() {
         })
     });
 
+    const compareOptions = compareDefinitions.map( c => {
+        return  ({
+            key: c.key,
+            text: c.text,
+            value: c.value
+        })
+    })
+
+    console.log('metricOptions', metricOptions)
+    console.log('compareOptions', compareOptions)
+    const submitForm = () => {
+        console.log('FORM SUBMITTED!')
+/*         Request must look like this:
+
+        {
+              "restaurantIds": [
+                0
+              ],
+              "fromDate": "2023-03-10T00:30:11.604Z",
+              "toDate": "2023-03-10T00:30:11.604Z",
+              "fromHour": 0,
+              "toHour": 0,
+              "metricCriteria": [
+                {
+                  "metricCode": "string",
+                  "compareType": "Equal",
+                  "value": 0
+                }
+              ]
+            }
+ */
+            const inputParameters = {
+                restaurantIds: restaurantIds,
+                 fromDate: startDate,
+                 toDate: endDate,
+                 fromHour: fromTime,
+                 toHour: toTime,
+                 metricCriteria: [
+                    {
+                        metricCode: metric,
+                        compareType: compare,
+                        value: Number(inputValue)
+                     }
+                ]
+            }
+            
+
+
+
+
+                postData("https://customsearchquerytoolapi.azurewebsites.net/Search/Query", inputParameters)
+                .then(data => {
+                    setTransactionData(data)
+                })
+
+                console.log(transactionData)
+            
+
+            console.log(inputParameters)
+          }
+
+
     return (
         <Grid>
             <Grid.Row columns={1}>
@@ -141,10 +241,10 @@ function InputParameters() {
                                 </Grid.Row>
 
                                 <Grid.Row>
-                                    <Form>
+                                    <Form onSubmit={() => submitForm()}>
 
                                         <Form.Field>
-                                            <h3>Restaurant</h3>
+                                            <h4>Restaurant</h4>
                                             <Dropdown
                                                 placeholder='Select restaurant...'
                                                 fluid
@@ -157,7 +257,7 @@ function InputParameters() {
                                         </Form.Field>
 
                                         <Form.Field>
-                                            <h1>Metrics</h1>
+                                            <h4>Metrics</h4>
                                             <Dropdown
                                                 placeholder='Select metric...'
                                                 fluid
@@ -177,31 +277,27 @@ function InputParameters() {
                                             />
 
                                             <Input
-                                                placeholder="Quantity"
-                                            />
-
-                                            <Input
-                                                placeholder="Result"
+                                                placeholder="value"
+                                                value={inputValue}
+                                                onChange={(e, data) => setInputValue(data.value)}
                                             />
                                         </Form.Field>
 
                                         <Form.Field>
-                                            <h3>From</h3>
+                                            <h4>Time Range</h4>
                                             <Dropdown
                                                 placeholder='Start time...'
                                                 fluid
-                                                multiple
                                                 selection
                                                 options={timeOptions}
                                                 //options={restaurantData}
                                                 value={fromTime}
                                                 onChange={(e, data) => setFromTime(data.value)}
                                             />
-                                            <h3>To</h3>
+                                            {/* <h3>To</h3> */}
                                             <Dropdown
                                                 placeholder='End time...'
                                                 fluid
-                                                multiple
                                                 selection
                                                 options={timeOptions}
                                                 //options={restaurantData}
@@ -211,7 +307,7 @@ function InputParameters() {
                                         </Form.Field>
 
                                         <Form.Field>
-                                            <h3>Date range</h3>
+                                            <h4>Date range</h4>
                                             <DateRangePicker
                                                 startDate={startDate}
                                                 startDateId="your_unique_start_date_id"
@@ -224,10 +320,52 @@ function InputParameters() {
                                                 }
                                                 focusedInput={focusedInput}
                                                 onFocusChange={ focusedInput => setFocusedInput(focusedInput)}
+                                                isOutsideRange={(day) => {
+                                                            if (day >= moment("2021-10-01") && day <= moment("2021-10-26")) {
+                                                                return false;
+                                                            } else {
+                                                                return true;
+                                                            }
+                                                        }}
                                             />
                                         </Form.Field>
 
+                                        <Form.Field>
+                                            <Button color="green" type="submit" >
+                                                Submit
+                                            </Button>
+                                        </Form.Field>
+
                                     </Form>
+                                </Grid.Row>
+                                <Grid.Row>
+                                    <Table>
+                                        <Table.Header>
+                                            <Table.Row>
+                                                <Table.HeaderCell>
+                                                    Restaurant Name
+                                                </Table.HeaderCell>
+                                                <Table.HeaderCell>
+                                                    Order Date
+                                                </Table.HeaderCell>
+                                                {metricDefinitions.map(m => {
+                                                    return <Table.HeaderCell>
+                                                        {m.alias}
+                                                    </Table.HeaderCell>
+                                                })}
+
+                                            </Table.Row>
+                                        </Table.Header>
+                                        <Table.Row>
+                                            <Table.Cell>
+                                                Table cell 1!
+                                            </Table.Cell>
+                                            <Table.Cell>
+                                                Table cell 2!
+                                            </Table.Cell>
+                                        </Table.Row>
+
+                                    </Table>
                                 </Grid.Row>
 
 
