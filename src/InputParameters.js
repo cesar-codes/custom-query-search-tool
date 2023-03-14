@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import { useState } from "react";
 import { DateRangePicker } from "react-dates";
-import { Container, Dropdown, Grid, Segment, Input, Form, Button, Table, Tab } from "semantic-ui-react";
+import { Container, Dropdown, Grid, Segment, Input, Form, Button, Table, Tab, Pagination } from "semantic-ui-react";
 import moment from "moment";
 import RestaurantData from './RestaurantData.json';
 
@@ -32,36 +32,6 @@ async function postData(url="", data = {}) {
     }
 }
 
-const results = [
-    {
-    "netAmount": 40.65,
-    "restaurantId": 1,
-    "busDt": "2021-10-01T00:00:00",
-    "orderNumber": 98071,
-    "orderTime": "2021-10-01T19:01:00",
-    "totalAmount": 43.71,
-    "itemSoldQty": 29,
-    "beverageQty": 3,
-    "discountAmount": 0,
-    "discountRatio": 0,
-    "itemDeletedAmount": 0,
-    "refundAmount": 0
-  },
-  {
-    "netAmount": 23.12,
-    "restaurantId": 1,
-    "busDt": "2021-10-01T00:00:00",
-    "orderNumber": 61738,
-    "orderTime": "2021-10-01T15:16:00",
-    "totalAmount": 24.86,
-    "itemSoldQty": 26,
-    "beverageQty": 0,
-    "discountAmount": 0,
-    "discountRatio": 0,
-    "itemDeletedAmount": 0,
-    "refundAmount": 0
-  }
-]
 
 function InputParameters() {
     const restaurantData = RestaurantData.map( d =>{
@@ -132,9 +102,9 @@ function InputParameters() {
     ]
 
 
-
-    const [fromTime, setFromTime] = useState(5);
-    const [toTime, setToTime] = useState(29)
+    //State variables
+    const [fromTime, setFromTime] = useState(null);
+    const [toTime, setToTime] = useState(null)
 
     const [metric, setMetric] = useState(null)
     const [compare, setCompare] = useState(null)
@@ -143,11 +113,26 @@ function InputParameters() {
 
     const [restaurantIds, setRestaurantIds] = useState([]);
     const [startDate, setStartDate] = useState(moment("10-1-2021"));
-    const [endDate, setEndDate] = useState(moment("10-6-2021"));
+    const [endDate, setEndDate] = useState(moment("10-31-2021"));
     const [focusedInput, setFocusedInput] = useState(null);
     const [metricDefinitions, setMetricDefinitions] = useState([]);
+
+    const [activePage, setActivePage] = useState(1)
     
-    const [inputValue, setInputValue] = useState(null)
+    const [rows, setRows] = useState([<Table.Row>
+                <Table.Cell>1</Table.Cell>
+                <Table.Cell>2</Table.Cell>
+                <Table.Cell>3</Table.Cell>
+                <Table.Cell>4</Table.Cell>
+                <Table.Cell>5</Table.Cell>
+                <Table.Cell>6</Table.Cell>
+                <Table.Cell>7</Table.Cell>
+                <Table.Cell>8</Table.Cell>
+                <Table.Cell>9</Table.Cell>
+                <Table.Cell>10</Table.Cell>
+            </Table.Row>])
+
+    const [inputValue, setInputValue] = useState('')
 
     useEffect(() => {
         getData("https://customsearchquerytoolapi.azurewebsites.net/Search/MetricDefinitions")
@@ -173,8 +158,8 @@ function InputParameters() {
         })
     })
 
-    console.log('metricOptions', metricOptions)
-    console.log('compareOptions', compareOptions)
+    // console.log('metricOptions', metricOptions)
+    // console.log('compareOptions', compareOptions)
     const submitForm = () => {
         console.log('FORM SUBMITTED!')
 /*         Request must look like this:
@@ -210,22 +195,76 @@ function InputParameters() {
                      }
                 ]
             }
-            
-
-
-
 
                 postData("https://customsearchquerytoolapi.azurewebsites.net/Search/Query", inputParameters)
                 .then(data => {
                     setTransactionData(data)
                 })
-
-                console.log(transactionData)
+                
+                // THIS IS THE OUTPUT THAT NEEDS TO BE MAPPED TO THE TABLE. 
+                console.log('transactionData', transactionData)
+                console.log('info:', transactionData[0])
             
 
-            console.log(inputParameters)
+            console.log('inputParameters', inputParameters)
           }
 
+        const addRow = () => {
+
+            const rowsLength = transactionData.length;
+            //rows.length;
+
+            // tried to spread array here, readOnly error. 
+            //transactionData = [...transactionData]
+            const newRow = 
+            <Table.Row>
+                {/* Tried to spread the array, that didn't work.  */}
+                {/* <Table.Cell>{[...transactionData[0]]}</Table.Cell> */}
+
+
+                {/* <Table.Cell></Table.Cell>
+                <Table.Cell></Table.Cell>
+                <Table.Cell></Table.Cell>
+                <Table.Cell></Table.Cell>
+                <Table.Cell></Table.Cell>
+                <Table.Cell></Table.Cell>
+                <Table.Cell></Table.Cell>
+                <Table.Cell></Table.Cell>
+                <Table.Cell></Table.Cell>
+            </Table.Row>;
+
+            <Table.Row> */}
+                <Table.Cell>{1 * rowsLength}</Table.Cell>
+                <Table.Cell>{2 * rowsLength}</Table.Cell>
+                <Table.Cell>{3 * rowsLength}</Table.Cell>
+                <Table.Cell>{4 * rowsLength}</Table.Cell>
+                <Table.Cell>{5 * rowsLength}</Table.Cell>
+                <Table.Cell>{6 * rowsLength}</Table.Cell>
+                <Table.Cell>{7 * rowsLength}</Table.Cell>
+                <Table.Cell>{8 * rowsLength}</Table.Cell>
+                <Table.Cell>{9 * rowsLength}</Table.Cell>
+                <Table.Cell>{10 * rowsLength}</Table.Cell>
+            </Table.Row>;
+
+
+            const rowsNew = [...rows];
+            rowsNew.push(newRow)    
+
+            console.log('rows', rows)
+            console.log('rowsNew', rowsNew)
+
+            setRows(rowsNew)
+            
+        }
+
+        
+          console.log('metricDefinitions', metricDefinitions)
+
+          function FixFirstLetter(string) {
+            return string.charAt(0).toLowerCase() + string.slice(1);
+            }
+
+            const slicedData = transactionData.slice((activePage - 1) * 20, activePage * 20 - 1) 
 
     return (
         <Grid>
@@ -339,6 +378,12 @@ function InputParameters() {
                                     </Form>
                                 </Grid.Row>
                                 <Grid.Row>
+                                    {/* <h4>
+                                    Results
+                                    </h4> */}
+                                    <Button onClick={() => addRow()}  color="red">
+                                        Add row to table
+                                    </Button>
                                     <Table>
                                         <Table.Header>
                                             <Table.Row>
@@ -356,16 +401,50 @@ function InputParameters() {
 
                                             </Table.Row>
                                         </Table.Header>
-                                        <Table.Row>
+                                        {/* <Table.Row>
                                             <Table.Cell>
                                                 Table cell 1!
                                             </Table.Cell>
                                             <Table.Cell>
                                                 Table cell 2!
                                             </Table.Cell>
-                                        </Table.Row>
+                                        </Table.Row> */}
 
+                                        {/* Todo - Create Logic to display transactionData results on table */}
+                                        
+                                        
+                                        <Table.Body>
+                                            {rows}
+                                            {slicedData.map( t => {
+                                                return <Table.Row>
+                                                {/* what should we return here? */}
+
+                                                <Table.Cell>
+                                                    {t.restaurantId}
+                                                </Table.Cell>
+                                                <Table.Cell>
+                                                    {t.busDt}
+                                                </Table.Cell>
+                                                {metricDefinitions.map(m => {
+                                                    return <Table.Cell>
+                                                        {t[FixFirstLetter(m.metricCode)]}
+                                                    </Table.Cell>
+                                                })}
+
+
+                                                    </Table.Row>
+                                                
+                                            })}
+                                            {/* {[...transactionData]} */}
+                                        </Table.Body>
+                                        
                                     </Table>
+                                    {/* Todo Link Pagination to results */}
+                                    {/* 1. Total pages, 2. State variable ..[0-19...] using slice*/}
+                                    <Pagination 
+                                    activePage={activePage}
+                                    onPageChange={(e, data) => setActivePage(data.activePage)}
+                                    totalPages={ Math.ceil(transactionData.length / 20) } />
                                 </Grid.Row>
 
 
