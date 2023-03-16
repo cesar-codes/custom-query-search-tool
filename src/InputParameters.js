@@ -42,7 +42,7 @@ function InputParameters() {
     })
 }
 )
-//console.log('data', RestaurantData)
+console.log('data', RestaurantData)
     const timeOptions = [
         {key: 1, text: '5 a.m.', value: 5},
         {key: 2, text: '6 a.m.', value: 6},
@@ -157,7 +157,7 @@ function InputParameters() {
             value: c.value
         })
     })
-
+    
     // console.log('metricOptions', metricOptions)
     // console.log('compareOptions', compareOptions)
     const submitForm = () => {
@@ -195,7 +195,7 @@ function InputParameters() {
                      }
                 ]
             }
-
+            console.log('restaurantIds', inputParameters.restaurantIds)
                 postData("https://customsearchquerytoolapi.azurewebsites.net/Search/Query", inputParameters)
                 .then(data => {
                     setTransactionData(data)
@@ -204,6 +204,19 @@ function InputParameters() {
                 // THIS IS THE OUTPUT THAT NEEDS TO BE MAPPED TO THE TABLE. 
                 console.log('transactionData', transactionData)
                 console.log('info:', transactionData[0])
+                // transactionData parameters
+            //beverageQty             // 0
+            // busDt             // "2021-10-01T00:00:00"
+            // discountAmount             // 0
+            // discountRatio             // 0
+            // itemDeletedAmount             // 0
+            // itemSoldQty             // 54
+            // netAmount             // 80.56
+            // orderNumber             // 1117
+            // orderTime             // "2021-10-01T07:25:00"
+            // refundAmount             // 0
+            // restaurantId             // 1
+            // totalAmount             // 86.62
             
 
             console.log('inputParameters', inputParameters)
@@ -258,13 +271,23 @@ function InputParameters() {
         }
 
         
-          console.log('metricDefinitions', metricDefinitions)
+          
+
+          
 
           function FixFirstLetter(string) {
             return string.charAt(0).toLowerCase() + string.slice(1);
             }
 
+            const slicedDate = transactionData
             const slicedData = transactionData.slice((activePage - 1) * 20, activePage * 20 - 1) 
+
+    // metricCode helper function
+    console.log('metricDefinitions', metricDefinitions)
+    const findRestaurantName = (restauranId) => {
+        
+    }
+
 
     return (
         <Grid>
@@ -382,7 +405,7 @@ function InputParameters() {
                                     Results
                                     </h4> */}
                                     <Button onClick={() => addRow()}  color="red">
-                                        Add row to table
+                                        Add additional criteria
                                     </Button>
                                     <Table>
                                         <Table.Header>
@@ -417,9 +440,9 @@ function InputParameters() {
                                             {rows}
                                             {slicedData.map( t => {
                                                 return <Table.Row>
-                                                {/* what should we return here? */}
-
                                                 <Table.Cell>
+                                                    {/* {restaurantData[t.restaurantId]} */}
+                                                    {/* {inputParameters.restaurantIds[t.restaurantId]} */}
                                                     {t.restaurantId}
                                                 </Table.Cell>
                                                 <Table.Cell>
