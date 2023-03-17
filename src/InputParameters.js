@@ -14,7 +14,6 @@ async function getData(url = "") {
 }
 
 // API url=("https://customsearchquerytoolapi.azurewebsites.net/Search/Query")
-// Data in API available 10-1-2021 thru 10-26-2021
 async function postData(url="", data = {}) {
     const response = await fetch(url, {
         method: 'POST',
@@ -42,7 +41,6 @@ function InputParameters() {
     })
 }
 )
-console.log('data', RestaurantData)
     const timeOptions = [
         {key: 1, text: '5 a.m.', value: 5},
         {key: 2, text: '6 a.m.', value: 6},
@@ -119,22 +117,25 @@ console.log('data', RestaurantData)
 
     const [activePage, setActivePage] = useState(1)
     
-    const [rows, setRows] = useState([<Table.Row>
-                <Table.Cell>1</Table.Cell>
-                <Table.Cell>2</Table.Cell>
-                <Table.Cell>3</Table.Cell>
-                <Table.Cell>4</Table.Cell>
-                <Table.Cell>5</Table.Cell>
-                <Table.Cell>6</Table.Cell>
-                <Table.Cell>7</Table.Cell>
-                <Table.Cell>8</Table.Cell>
-                <Table.Cell>9</Table.Cell>
-                <Table.Cell>10</Table.Cell>
-            </Table.Row>])
+    const [rows, setRows] = useState(
+        [<Table.Row>
+                <Table.Cell></Table.Cell>
+                <Table.Cell></Table.Cell>
+                <Table.Cell></Table.Cell>
+                <Table.Cell></Table.Cell>
+                <Table.Cell></Table.Cell>
+                <Table.Cell></Table.Cell>
+                <Table.Cell></Table.Cell>
+                <Table.Cell></Table.Cell>
+                <Table.Cell></Table.Cell>
+                <Table.Cell></Table.Cell>
+            </Table.Row>]
+            )
 
     const [inputValue, setInputValue] = useState('')
 
     useEffect(() => {
+        console.log(findRestaurantName(3));
         getData("https://customsearchquerytoolapi.azurewebsites.net/Search/MetricDefinitions")
         .then(data => {
             setMetricDefinitions(data)
@@ -161,7 +162,7 @@ console.log('data', RestaurantData)
     // console.log('metricOptions', metricOptions)
     // console.log('compareOptions', compareOptions)
     const submitForm = () => {
-        console.log('FORM SUBMITTED!')
+        //console.log('FORM SUBMITTED!')
 /*         Request must look like this:
 
         {
@@ -195,15 +196,15 @@ console.log('data', RestaurantData)
                      }
                 ]
             }
-            console.log('restaurantIds', inputParameters.restaurantIds)
+            //console.log('restaurantIds', inputParameters.restaurantIds)
                 postData("https://customsearchquerytoolapi.azurewebsites.net/Search/Query", inputParameters)
                 .then(data => {
                     setTransactionData(data)
                 })
                 
                 // THIS IS THE OUTPUT THAT NEEDS TO BE MAPPED TO THE TABLE. 
-                console.log('transactionData', transactionData)
-                console.log('info:', transactionData[0])
+               //console.log('transactionData', transactionData)
+               // console.log('info:', transactionData[0])
                 // transactionData parameters
             //beverageQty             // 0
             // busDt             // "2021-10-01T00:00:00"
@@ -225,28 +226,9 @@ console.log('data', RestaurantData)
         const addRow = () => {
 
             const rowsLength = transactionData.length;
-            //rows.length;
-
-            // tried to spread array here, readOnly error. 
-            //transactionData = [...transactionData]
             const newRow = 
             <Table.Row>
-                {/* Tried to spread the array, that didn't work.  */}
-                {/* <Table.Cell>{[...transactionData[0]]}</Table.Cell> */}
-
-
-                {/* <Table.Cell></Table.Cell>
-                <Table.Cell></Table.Cell>
-                <Table.Cell></Table.Cell>
-                <Table.Cell></Table.Cell>
-                <Table.Cell></Table.Cell>
-                <Table.Cell></Table.Cell>
-                <Table.Cell></Table.Cell>
-                <Table.Cell></Table.Cell>
-                <Table.Cell></Table.Cell>
-            </Table.Row>;
-
-            <Table.Row> */}
+                
                 <Table.Cell>{1 * rowsLength}</Table.Cell>
                 <Table.Cell>{2 * rowsLength}</Table.Cell>
                 <Table.Cell>{3 * rowsLength}</Table.Cell>
@@ -270,10 +252,6 @@ console.log('data', RestaurantData)
             
         }
 
-        
-          
-
-          
 
           function FixFirstLetter(string) {
             return string.charAt(0).toLowerCase() + string.slice(1);
@@ -284,11 +262,19 @@ console.log('data', RestaurantData)
 
     // metricCode helper function
     console.log('metricDefinitions', metricDefinitions)
-    const findRestaurantName = (restauranId) => {
-        
+    function findRestaurantName(restaurantId)
+    {
+        const restaurant = RestaurantData.find(r => r.Id === restaurantId);
+
+        return restaurant.Name;
     }
+    console.log('data', RestaurantData[0].Name)
 
-
+    // metricDefinitions = metricDefinitions.map( a => {
+        
+    // })
+    //console.log('findRestaurantName', findRestaurantName(1))
+    
     return (
         <Grid>
             <Grid.Row columns={1}>
@@ -424,26 +410,13 @@ console.log('data', RestaurantData)
 
                                             </Table.Row>
                                         </Table.Header>
-                                        {/* <Table.Row>
-                                            <Table.Cell>
-                                                Table cell 1!
-                                            </Table.Cell>
-                                            <Table.Cell>
-                                                Table cell 2!
-                                            </Table.Cell>
-                                        </Table.Row> */}
-
-                                        {/* Todo - Create Logic to display transactionData results on table */}
-                                        
                                         
                                         <Table.Body>
-                                            {rows}
+                                            
                                             {slicedData.map( t => {
                                                 return <Table.Row>
                                                 <Table.Cell>
-                                                    {/* {restaurantData[t.restaurantId]} */}
-                                                    {/* {inputParameters.restaurantIds[t.restaurantId]} */}
-                                                    {t.restaurantId}
+                                                    {findRestaurantName(t.restaurantId).slice(15)}
                                                 </Table.Cell>
                                                 <Table.Cell>
                                                     {t.busDt}
@@ -453,12 +426,8 @@ console.log('data', RestaurantData)
                                                         {t[FixFirstLetter(m.metricCode)]}
                                                     </Table.Cell>
                                                 })}
-
-
                                                     </Table.Row>
-                                                
                                             })}
-                                            {/* {[...transactionData]} */}
                                         </Table.Body>
                                         
                                     </Table>
