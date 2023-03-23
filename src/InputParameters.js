@@ -101,19 +101,27 @@ function InputParameters() {
 
 
     //State variables
-    const [fromTime, setFromTime] = useState(null);
-    const [toTime, setToTime] = useState(null)
+    const [fromTime, setFromTime] = useState(5);
+    const [toTime, setToTime] = useState(10)
 
-    const [metric, setMetric] = useState(null)
-    const [compare, setCompare] = useState(null)
+    const [compare, setCompare] = useState('GreaterThan')
 
     const [transactionData, setTransactionData] = useState([]);
 
-    const [restaurantIds, setRestaurantIds] = useState([]);
+    const [restaurantIds, setRestaurantIds] = useState([1]);
     const [startDate, setStartDate] = useState(moment("10-1-2021"));
     const [endDate, setEndDate] = useState(moment("10-31-2021"));
     const [focusedInput, setFocusedInput] = useState(null);
     const [metricDefinitions, setMetricDefinitions] = useState([]);
+    const [metric, setMetric] = useState('netAmount')
+    const [metricCriteria, setMetricCriteria] = useState([
+        {
+            metricCode: "",
+            compareType: "",
+            value: ""
+        }
+
+    ])
 
     const [activePage, setActivePage] = useState(1)
     
@@ -131,7 +139,7 @@ function InputParameters() {
                 <Table.Cell></Table.Cell>
             </Table.Row>]
             )
-
+    console.log('transactionData', transactionData)
     const [inputValue, setInputValue] = useState('')
 
     useEffect(() => {
@@ -159,29 +167,10 @@ function InputParameters() {
         })
     })
     
-    // console.log('metricOptions', metricOptions)
+     console.log('metricOptions', metricOptions)
     // console.log('compareOptions', compareOptions)
     const submitForm = () => {
-        //console.log('FORM SUBMITTED!')
-/*         Request must look like this:
 
-        {
-              "restaurantIds": [
-                0
-              ],
-              "fromDate": "2023-03-10T00:30:11.604Z",
-              "toDate": "2023-03-10T00:30:11.604Z",
-              "fromHour": 0,
-              "toHour": 0,
-              "metricCriteria": [
-                {
-                  "metricCode": "string",
-                  "compareType": "Equal",
-                  "value": 0
-                }
-              ]
-            }
- */
             const inputParameters = {
                 restaurantIds: restaurantIds,
                  fromDate: startDate,
@@ -201,54 +190,14 @@ function InputParameters() {
                 .then(data => {
                     setTransactionData(data)
                 })
-                
-                // THIS IS THE OUTPUT THAT NEEDS TO BE MAPPED TO THE TABLE. 
-               //console.log('transactionData', transactionData)
-               // console.log('info:', transactionData[0])
-                // transactionData parameters
-            //beverageQty             // 0
-            // busDt             // "2021-10-01T00:00:00"
-            // discountAmount             // 0
-            // discountRatio             // 0
-            // itemDeletedAmount             // 0
-            // itemSoldQty             // 54
-            // netAmount             // 80.56
-            // orderNumber             // 1117
-            // orderTime             // "2021-10-01T07:25:00"
-            // refundAmount             // 0
-            // restaurantId             // 1
-            // totalAmount             // 86.62
             
 
             console.log('inputParameters', inputParameters)
           }
 
-        const addRow = () => {
+        const addMetricCriteria = () => {
 
-            const rowsLength = transactionData.length;
-            const newRow = 
-            <Table.Row>
-                
-                <Table.Cell>{1 * rowsLength}</Table.Cell>
-                <Table.Cell>{2 * rowsLength}</Table.Cell>
-                <Table.Cell>{3 * rowsLength}</Table.Cell>
-                <Table.Cell>{4 * rowsLength}</Table.Cell>
-                <Table.Cell>{5 * rowsLength}</Table.Cell>
-                <Table.Cell>{6 * rowsLength}</Table.Cell>
-                <Table.Cell>{7 * rowsLength}</Table.Cell>
-                <Table.Cell>{8 * rowsLength}</Table.Cell>
-                <Table.Cell>{9 * rowsLength}</Table.Cell>
-                <Table.Cell>{10 * rowsLength}</Table.Cell>
-            </Table.Row>;
-
-
-            const rowsNew = [...rows];
-            rowsNew.push(newRow)    
-
-            console.log('rows', rows)
-            console.log('rowsNew', rowsNew)
-
-            setRows(rowsNew)
+            setRows(rows)
             
         }
 
@@ -262,18 +211,32 @@ function InputParameters() {
 
     // metricCode helper function
     console.log('metricDefinitions', metricDefinitions)
-    function findRestaurantName(restaurantId)
-    {
+    function findRestaurantName(restaurantId) {
         const restaurant = RestaurantData.find(r => r.Id === restaurantId);
 
         return restaurant.Name;
     }
     console.log('data', RestaurantData[0].Name)
 
-    // metricDefinitions = metricDefinitions.map( a => {
-        
-    // })
-    //console.log('findRestaurantName', findRestaurantName(1))
+    // transactionData helper function(s)
+    function formatDollars (transactionData) {
+        const amount = transactionData.map (a => {
+
+            a.totalAmount = '$' + a.totalAmount 
+        })
+    }
+
+    function formatMetrics (value, dataType, decimals) {
+        if (dataType === 'Money') {
+            return '$' + value.toFixed(decimals)
+        }
+        else if (dataType === "Percent") {
+            return value.toFixed(decimals) * 100 + '%'
+        }
+        else if (dataType === 'Number') {
+            return value.toFixed(decimals)
+        }
+    }
     
     return (
         <Grid>
@@ -390,7 +353,7 @@ function InputParameters() {
                                     {/* <h4>
                                     Results
                                     </h4> */}
-                                    <Button onClick={() => addRow()}  color="red">
+                                    <Button onClick={() => addMetricCriteria()}  color="red">
                                         Add additional criteria
                                     </Button>
                                     <Table>
@@ -419,11 +382,11 @@ function InputParameters() {
                                                     {findRestaurantName(t.restaurantId).slice(15)}
                                                 </Table.Cell>
                                                 <Table.Cell>
-                                                    {t.busDt}
+                                                    {moment(t.busDt).format('YYYY-MM-DD')}
                                                 </Table.Cell>
                                                 {metricDefinitions.map(m => {
                                                     return <Table.Cell>
-                                                        {t[FixFirstLetter(m.metricCode)]}
+                                                        {formatMetrics(t[FixFirstLetter(m.metricCode)], m.dataType, m.decimalPlaces )}
                                                     </Table.Cell>
                                                 })}
                                                     </Table.Row>
