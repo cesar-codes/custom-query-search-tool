@@ -1,3 +1,4 @@
+/* eslint-disable */
 import React, { useEffect } from "react";
 import { useState } from "react";
 import { DateRangePicker } from "react-dates";
@@ -41,6 +42,7 @@ function InputParameters() {
     })
 }
 )
+
     const timeOptions = [
         {key: 1, text: '5 a.m.', value: 5},
         {key: 2, text: '6 a.m.', value: 6},
@@ -143,7 +145,7 @@ function InputParameters() {
     const [inputValue, setInputValue] = useState('')
 
     useEffect(() => {
-        console.log(findRestaurantName(3));
+        //console.log(findRestaurantName(3));
         getData("https://customsearchquerytoolapi.azurewebsites.net/Search/MetricDefinitions")
         .then(data => {
             setMetricDefinitions(data)
@@ -177,13 +179,16 @@ function InputParameters() {
                  toDate: endDate,
                  fromHour: fromTime,
                  toHour: toTime,
-                 metricCriteria: [
-                    {
-                        metricCode: metric,
-                        compareType: compare,
-                        value: Number(inputValue)
+                 metricCriteria: metricCriteria.map(m => {
+                    return(
+                        {
+                        metricCode: m.metric,
+                        compareType: m.compare,
+                        value: Number(m.value)
                      }
-                ]
+                    )
+                 })
+                 
             }
             //console.log('restaurantIds', inputParameters.restaurantIds)
                 postData("https://customsearchquerytoolapi.azurewebsites.net/Search/Query", inputParameters)
@@ -192,13 +197,31 @@ function InputParameters() {
                 })
             
 
-            console.log('inputParameters', inputParameters)
+            //console.log('inputParameters', inputParameters)
           }
 
-        const addMetricCriteria = () => {
+          function setMetricCriteriaHelper(index, propertyName, propertyValue) {
 
-            setRows(rows)
-            
+            const metricCriteriaOrig = [...metricCriteria];
+
+            metricCriteriaOrig[index][propertyName] = propertyValue;
+
+            setMetricCriteria(metricCriteriaOrig)
+            console.log('metricCriteriaOrig', metricCriteriaOrig)
+          }
+
+        
+          function addMetricCriteria () {
+
+            const metricCriteriaOld = [...metricCriteria];
+
+            metricCriteriaOld.push({
+                metricCode: "",
+                compareType: "",
+                value: ""
+            })
+            setMetricCriteria(metricCriteriaOld)
+            console.log('metricCriteriaOld', metricCriteriaOld)
         }
 
 
@@ -216,7 +239,9 @@ function InputParameters() {
 
         return restaurant.Name;
     }
-    console.log('data', RestaurantData[0].Name)
+
+    console.log('metricCriteria', metricCriteria);
+    //console.log('data', RestaurantData[0].Name)
 
     // transactionData helper function(s)
     function formatDollars (transactionData) {
@@ -269,29 +294,36 @@ function InputParameters() {
 
                                         <Form.Field>
                                             <h4>Metrics</h4>
-                                            <Dropdown
-                                                placeholder='Select metric...'
-                                                fluid
-                                                selection
-                                                options={metricOptions}
-                                                value={metric}
-                                                onChange={(e, data) => setMetric(data.value)}
-                                            />
+                                            {metricCriteria.map((m, index) => {
+                                                return(
+                                                    <Form.Field>
+                                                    <Dropdown
+                                                        placeholder='Select metric...'
+                                                        fluid
+                                                        selection
+                                                        options={metricOptions}
+                                                        value={m.metric}
+                                                        onChange={(e, data) => setMetricCriteriaHelper(index, 'metric', data.value)}
+                                                    />
 
-                                            <Dropdown
-                                                placeholder='...'
-                                                fluid
-                                                selection
-                                                options={compareOptions}
-                                                value={compare}
-                                                onChange={(e, data) => setCompare(data.value)}
-                                            />
+                                                    <Dropdown
+                                                        placeholder='...'
+                                                        fluid
+                                                        selection
+                                                        options={compareOptions}
+                                                        value={m.compare}
+                                                        onChange={(e, data) => setMetricCriteriaHelper(index, 'compare', data.value)}
+                                                    />
 
-                                            <Input
-                                                placeholder="value"
-                                                value={inputValue}
-                                                onChange={(e, data) => setInputValue(data.value)}
-                                            />
+                                                    <Input
+                                                        placeholder="value"
+                                                        value={m.inputValue}
+                                                        onChange={(e, data) => setMetricCriteriaHelper(index, 'inputValue', data.value)}
+                                                    />
+                                            </Form.Field>
+                                                )
+                                            })}
+                                            
                                         </Form.Field>
 
                                         <Form.Field>
@@ -305,7 +337,7 @@ function InputParameters() {
                                                 value={fromTime}
                                                 onChange={(e, data) => setFromTime(data.value)}
                                             />
-                                            {/* <h3>To</h3> */}
+                                           
                                             <Dropdown
                                                 placeholder='End time...'
                                                 fluid
